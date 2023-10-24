@@ -32,21 +32,17 @@ function renderLaunches(launches, container){
             "mouseover",
             (event) => {
                 event.target.style.color = "red";
-                console.log(event.target.id);
                 let launchpad = launchpads_map.get(event.target.id);
-                console.log(launchpads_map);
-                console.log(launchpad);
                 svg.selectAll("circle")
                     .filter(function() {
-                        let latitude = d3.select(this).attr("cx");
-                        let longitude = d3.select(this).attr("cy");
-                        console.log(latitude, longitude);
+                        let latitude = d3.select(this).attr("real_cx");
+                        let longitude = d3.select(this).attr("real_cy");
                         let equal = latitude == launchpad[0] && longitude == launchpad[1]; // filter by single attribute
-                        console.log(equal);
                         return equal
 
                     })
-                    .attr("fill", "red");
+                    .attr("fill", "red")
+                    .attr("r", "8px");
 
             },
             false,
@@ -55,13 +51,16 @@ function renderLaunches(launches, container){
             "mouseout",
             (event) => {
                 event.target.style.color = "black";
+                let launchpad = launchpads_map.get(event.target.id);
                 svg.selectAll("circle")
                     .filter(function() {
-                        let attr = d3.select(this).attr("cx");
-                        console.log(attr)
-                        return attr == 969.8737862993539; // filter by single attribute
+                        let latitude = d3.select(this).attr("real_cx");
+                        let longitude = d3.select(this).attr("real_cy");
+                        let equal = latitude == launchpad[0] && longitude == launchpad[1]; // filter by single attribute
+                        return equal
                     })
-                    .attr("fill", "black");
+                    .attr("fill", "black")
+                    .attr("r", "5px");
 
             },
             false,
@@ -78,8 +77,9 @@ function listofLaunchpads(launchpads){
         const latitude = launchpad.latitude;
         const longitude = launchpad.longitude;
         const launchpad_id = launchpad.id;
-        arr.push([latitude, longitude]);
-        launchpads_map.set(launchpad_id, [latitude, longitude]);
+        let entry = [longitude, latitude];
+        arr.push(entry);
+        launchpads_map.set(launchpad_id, entry);
     });
 
     return arr;
@@ -119,11 +119,10 @@ function drawMap(){
         svg.selectAll("circle")
             .data(data).enter()
             .append("circle")
-            .attr("cx", function (d) { console.log(projection(d)); return projection(d)[0]; })
+            .attr("cx", function (d) { console.log(projection(d), d); return projection(d)[0]; })
             .attr("cy", function (d) { return projection(d)[1]; })
-            .attr("launchpad_id", function(d){
-                
-            })
+            .attr("real_cx", function(d) {return d[0]})
+            .attr("real_cy", function(d) {return d[1]})
             .attr("r", "5px")
             .attr("fill", "black")
     });
